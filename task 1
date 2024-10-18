@@ -1,0 +1,60 @@
+# Importing necessary libraries
+import pandas as pd
+
+# Load the datasets
+file1 = '/mnt/data/Unemployment in India.csv'
+file2 = '/mnt/data/Unemployment_Rate_upto_11_2020.csv'
+
+# Reading the CSV files into DataFrames
+df1 = pd.read_csv(file1)
+df2 = pd.read_csv(file2)
+
+# Step 1: Removing duplicates
+df1_cleaned = df1.drop_duplicates()
+df2_cleaned = df2.drop_duplicates()
+
+# Step 2: Handling missing values (filling with 'Unknown')
+df1_cleaned = df1_cleaned.fillna('Unknown')
+df2_cleaned = df2_cleaned.fillna('Unknown')
+
+# Step 3: Converting the 'Date' column to a consistent datetime format
+df1_cleaned['Date'] = pd.to_datetime(df1_cleaned['Date'], errors='coerce')
+df2_cleaned['Date'] = pd.to_datetime(df2_cleaned['Date'], errors='coerce')
+
+# Step 4: Checking for and handling outliers
+# Example: Checking numerical columns for outliers
+numeric_columns_df1 = ['Estimated Unemployment Rate (%)', 'Estimated Employed', 'Estimated Labour Participation Rate (%)']
+numeric_columns_df2 = ['Estimated Unemployment Rate (%)', 'Estimated Employed', 'Estimated Labour Participation Rate (%)']
+
+# Removing outliers using a threshold (e.g., Z-score method or manually inspecting)
+for column in numeric_columns_df1:
+    df1_cleaned[column] = pd.to_numeric(df1_cleaned[column], errors='coerce')  # Ensure it's numeric
+
+for column in numeric_columns_df2:
+    df2_cleaned[column] = pd.to_numeric(df2_cleaned[column], errors='coerce')  # Ensure it's numeric
+
+# Step 5: Normalizing numeric columns (optional)
+# You can normalize columns if needed by scaling between 0 and 1, for example.
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+df1_cleaned[numeric_columns_df1] = scaler.fit_transform(df1_cleaned[numeric_columns_df1])
+df2_cleaned[numeric_columns_df2] = scaler.fit_transform(df2_cleaned[numeric_columns_df2])
+
+# Step 6: Checking data types and ensuring they are correct
+print(df1_cleaned.dtypes)
+print(df2_cleaned.dtypes)
+
+# Step 7: Re-saving the cleaned datasets as CSV files
+cleaned_file1 = '/mnt/data/Unemployment_in_India_cleaned_v2.csv'
+cleaned_file2 = '/mnt/data/Unemployment_Rate_upto_11_2020_cleaned_v2.csv'
+
+df1_cleaned.to_csv(cleaned_file1, index=False)
+df2_cleaned.to_csv(cleaned_file2, index=False)
+
+# Summary: print a sample of the cleaned data
+print("Sample from cleaned Dataset 1:")
+print(df1_cleaned.head())
+
+print("\nSample from cleaned Dataset 2:")
+print(df2_cleaned.head())
